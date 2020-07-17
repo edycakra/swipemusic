@@ -1,12 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Constants from "expo-constants";
-import { StyleSheet, Text, View, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  Animated,
+  PanResponder,
+} from "react-native";
 import { COLORS } from "../utils/colors";
 
 export default function Home() {
+  //mutable state
+  const [state, setState] = useState({
+    cardsPan: new Animated.ValueXY(),
+  });
+
+  //declaring available states
+  const { cardsPan } = state;
+
+  //function to handle pan respond
+  const cardsPanResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onStartShouldSetPanResponderCapture: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponderCapture: () => true,
+    onPanResponderMove: (event, gestureState) => {
+      cardsPan.setValue({ x: gestureState.dx, y: cardsPan.y });
+    },
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderRelease: (event, gestureState) => {},
+  });
+
+  //styling
   const lastCardStyle = {
     width: Dimensions.get("window").width - 10,
-    height: Dimensions.get("screen").height - 200,
+    height: Dimensions.get("screen").height - 400,
     position: "absolute",
     zIndex: 1,
     bottom: 120,
@@ -17,7 +46,7 @@ export default function Home() {
 
   const midCardStyle = {
     width: Dimensions.get("window").width - 10,
-    height: Dimensions.get("screen").height - 200,
+    height: Dimensions.get("screen").height - 400,
     position: "absolute",
     zIndex: 2,
     bottom: 60,
@@ -28,13 +57,13 @@ export default function Home() {
 
   const frontCardStyle = {
     width: Dimensions.get("window").width - 10,
-    height: Dimensions.get("screen").height - 200,
+    height: Dimensions.get("screen").height - 400,
     position: "absolute",
     zIndex: 3,
     bottom: 0,
     backgroundColor: COLORS[0],
     opacity: 1,
-    transform: [{ scale: 1.0 }],
+    transform: [{ translateX: cardsPan.x }, { scale: 1.0 }],
   };
 
   return (
@@ -61,7 +90,7 @@ export default function Home() {
           {COLORS[1]}
         </Text>
       </View>
-      <View style={frontCardStyle}>
+      <Animated.View {...cardsPanResponder.panHandlers} style={frontCardStyle}>
         <Text
           style={{
             color: "white",
@@ -71,7 +100,7 @@ export default function Home() {
         >
           {COLORS[0]}
         </Text>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -80,6 +109,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    bottom: 50,
+    bottom: 150,
   },
 });
