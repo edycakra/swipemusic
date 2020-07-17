@@ -62,7 +62,7 @@ export default function Home() {
     zIndex: 1,
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [40, 20],
+      outputRange: [80, 40],
     }),
     backgroundColor: COLORS[(currentIndex + 2) % 3],
     opacity: cardsStackedAnim.interpolate({
@@ -73,7 +73,7 @@ export default function Home() {
       {
         scale: cardsStackedAnim.interpolate({
           inputRange: [0, 1],
-          outputRange: [0.8, 0.9],
+          outputRange: [0.6, 0.8],
         }),
       },
     ],
@@ -86,7 +86,7 @@ export default function Home() {
     zIndex: 2,
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [20, 0],
+      outputRange: [40, 0],
     }),
     backgroundColor: COLORS[(currentIndex + 1) % 3],
     opacity: cardsStackedAnim.interpolate({
@@ -97,7 +97,7 @@ export default function Home() {
       {
         scale: cardsStackedAnim.interpolate({
           inputRange: [0, 1],
-          outputRange: [0.9, 1.0],
+          outputRange: [0.8, 1.0],
         }),
       },
     ],
@@ -113,7 +113,7 @@ export default function Home() {
     }),
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 40],
+      outputRange: [0, 80],
     }),
     backgroundColor: COLORS[currentIndex % 3],
     opacity: cardsStackedAnim.interpolate({
@@ -125,7 +125,7 @@ export default function Home() {
       {
         scale: cardsStackedAnim.interpolate({
           inputRange: [0, 1],
-          outputRange: [1, 0.8],
+          outputRange: [1, 0.6],
         }),
       },
     ],
