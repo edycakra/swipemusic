@@ -40,86 +40,107 @@ export default function Home() {
       }).start();
 
       //interpolate values
-      Animated.timing(cardsStackedAnim, { toValue: 1, duration: 300 }).start(
-        () => {
-          //reset to 0 when animation ends
-          cardsStackedAnim.setValue(0);
+      Animated.timing(cardsStackedAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => {
+        //reset to 0 when animation ends
+        cardsStackedAnim.setValue(0);
 
-          //increment the card postion after animation is ended
-          setState({ ...state, currentIndex: currentIndex + 1 });
-        }
-      );
+        //increment the card position after animation is ended
+        setState({ ...state, currentIndex: currentIndex + 1 });
+      });
     },
   });
 
   //styling
   const lastCardStyle = {
-    width: Dimensions.get("window").width - 10,
-    height: Dimensions.get("screen").height - 400,
+    width: 300,
+    height: 300,
     position: "absolute",
     zIndex: 1,
-    bottom: 120,
+    bottom: cardsStackedAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [40, 20],
+    }),
     backgroundColor: COLORS[(currentIndex + 2) % 3],
-    opacity: 0.3,
-    transform: [{ scale: 0.8 }],
+    opacity: cardsStackedAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.3, 0.6],
+    }),
+    transform: [
+      {
+        scale: cardsStackedAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.8, 0.9],
+        }),
+      },
+    ],
   };
 
   const midCardStyle = {
-    width: Dimensions.get("window").width - 10,
-    height: Dimensions.get("screen").height - 400,
+    width: 300,
+    height: 300,
     position: "absolute",
     zIndex: 2,
-    bottom: 60,
+    bottom: cardsStackedAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [20, 0],
+    }),
     backgroundColor: COLORS[(currentIndex + 1) % 3],
-    opacity: 0.6,
-    transform: [{ scale: 0.9 }],
+    opacity: cardsStackedAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.6, 1],
+    }),
+    transform: [
+      {
+        scale: cardsStackedAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.9, 1.0],
+        }),
+      },
+    ],
   };
 
   const frontCardStyle = {
-    width: Dimensions.get("window").width - 10,
-    height: Dimensions.get("screen").height - 400,
+    width: 300,
+    height: 300,
     position: "absolute",
-    zIndex: 3,
-    bottom: 0,
+    zIndex: cardsStackedAnim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [3, 2, 0],
+    }),
+    bottom: cardsStackedAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 40],
+    }),
     backgroundColor: COLORS[currentIndex % 3],
-    opacity: 1,
-    transform: [{ translateX: cardsPan.x }, { scale: 1.0 }],
+    opacity: cardsStackedAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 0.3],
+    }),
+    transform: [
+      { translateX: cardsPan.x },
+      {
+        scale: cardsStackedAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0.8],
+        }),
+      },
+    ],
   };
 
   return (
     <View style={styles.container}>
-      <View style={lastCardStyle}>
-        <Text
-          style={{
-            color: "white",
-            fontSize: 24,
-            fontWeight: "bold",
-          }}
-        >
-          {COLORS[2]}
-        </Text>
-      </View>
-      <View style={midCardStyle}>
-        <Text
-          style={{
-            color: "white",
-            fontSize: 24,
-            fontWeight: "bold",
-          }}
-        >
-          {COLORS[1]}
-        </Text>
-      </View>
+      <Animated.View style={lastCardStyle}>
+        <Text style={styles.textStyle}>{COLORS[(currentIndex + 2) % 3]}</Text>
+      </Animated.View>
+      <Animated.View style={midCardStyle}>
+        <Text style={styles.textStyle}>{COLORS[(currentIndex + 1) % 3]}</Text>
+      </Animated.View>
       <Animated.View {...cardsPanResponder.panHandlers} style={frontCardStyle}>
-        <Text
-          style={{
-            color: "white",
-            fontSize: 24,
-            fontWeight: "bold",
-          }}
-        >
-          {COLORS[0]}
-        </Text>
+        <Text style={styles.textStyle}>{COLORS[currentIndex % 3]}</Text>
       </Animated.View>
     </View>
   );
@@ -129,6 +150,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    marginTop: Constants.statusBarHeight,
     bottom: 150,
+  },
+  textStyle: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });
