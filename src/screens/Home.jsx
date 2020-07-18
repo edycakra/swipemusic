@@ -4,22 +4,59 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
   Dimensions,
   Animated,
   PanResponder,
 } from "react-native";
-import { COLORS } from "../utils/colors";
+import { MUSICS } from "../utils/music";
+import { Audio } from "expo-av";
 
 export default function Home() {
   //mutable state
   const [state, setState] = useState({
+    allSongs: MUSICS,
     cardsPan: new Animated.ValueXY(),
     cardsStackedAnim: new Animated.Value(0),
     currentIndex: 0,
+    currentSong: {},
+    playingStatus: "nosound",
+    paused: false,
   });
 
   //declaring available states
-  const { cardsPan, cardsStackedAnim, currentIndex } = state;
+  const {
+    cardsPan,
+    cardsStackedAnim,
+    currentIndex,
+    allSongs,
+    currentSong,
+    playingStatus,
+    paused,
+  } = state;
+  console.log("=======================");
+  console.log("currentSong >>>", currentSong);
+
+  const playMusic = async (input) => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: input.musicURL },
+        { shouldPlay: true, isLooping: false }
+      );
+      await sound.playAsync();
+      console.log("playing!");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    setState({ ...state, currentSong: allSongs[currentIndex % 3] });
+  }, [currentIndex]);
+
+  useEffect(() => {
+    playMusic(currentSong);
+  }, [currentSong]);
 
   //function to handle pan respond
   const cardsPanResponder = PanResponder.create({
@@ -57,17 +94,17 @@ export default function Home() {
   //styling
   const lastCardStyle = {
     width: 300,
-    height: 300,
+    height: 350,
     position: "absolute",
     zIndex: 1,
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
       outputRange: [80, 40],
     }),
-    backgroundColor: COLORS[(currentIndex + 2) % 3],
+    backgroundColor: allSongs[(currentIndex + 2) % 3].color,
     opacity: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0.3, 0.6],
+      outputRange: [0.6, 0.8],
     }),
     transform: [
       {
@@ -81,17 +118,17 @@ export default function Home() {
 
   const midCardStyle = {
     width: 300,
-    height: 300,
+    height: 350,
     position: "absolute",
     zIndex: 2,
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
       outputRange: [40, 0],
     }),
-    backgroundColor: COLORS[(currentIndex + 1) % 3],
+    backgroundColor: allSongs[(currentIndex + 1) % 3].color,
     opacity: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0.6, 1],
+      outputRange: [0.8, 1],
     }),
     transform: [
       {
@@ -105,7 +142,7 @@ export default function Home() {
 
   const frontCardStyle = {
     width: 300,
-    height: 300,
+    height: 350,
     position: "absolute",
     zIndex: cardsStackedAnim.interpolate({
       inputRange: [0, 0.5, 1],
@@ -115,10 +152,10 @@ export default function Home() {
       inputRange: [0, 1],
       outputRange: [0, 80],
     }),
-    backgroundColor: COLORS[currentIndex % 3],
+    backgroundColor: allSongs[currentIndex % 3].color,
     opacity: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [1, 0.3],
+      outputRange: [1, 0.6],
     }),
     transform: [
       { translateX: cardsPan.x },
@@ -134,13 +171,45 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <Animated.View style={lastCardStyle}>
-        <Text style={styles.textStyle}>{COLORS[(currentIndex + 2) % 3]}</Text>
+        <Text style={styles.artistText}>
+          {allSongs[(currentIndex + 2) % 3].artist}
+        </Text>
+        <Text style={styles.titleText}>
+          {allSongs[(currentIndex + 2) % 3].title}
+        </Text>
+        <Text style={styles.contentText}>
+          {allSongs[(currentIndex + 2) % 3].album}
+        </Text>
       </Animated.View>
       <Animated.View style={midCardStyle}>
-        <Text style={styles.textStyle}>{COLORS[(currentIndex + 1) % 3]}</Text>
+        <Text style={styles.artistText}>
+          {allSongs[(currentIndex + 1) % 3].artist}
+        </Text>
+        <Text style={styles.titleText}>
+          {allSongs[(currentIndex + 1) % 3].title}
+        </Text>
+        <Text style={styles.contentText}>
+          {allSongs[(currentIndex + 1) % 3].album}
+        </Text>
       </Animated.View>
       <Animated.View {...cardsPanResponder.panHandlers} style={frontCardStyle}>
-        <Text style={styles.textStyle}>{COLORS[currentIndex % 3]}</Text>
+        <Text style={styles.artistText}>
+          {allSongs[currentIndex % 3].artist}
+        </Text>
+        <Text style={styles.titleText}>{allSongs[currentIndex % 3].title}</Text>
+        <Text style={styles.contentText}>
+          ({allSongs[currentIndex % 3].album})
+        </Text>
+        <Image
+          style={{
+            height: 300,
+            width: 300,
+            borderRadius: 10,
+            left: 20,
+            top: 20,
+          }}
+          source={{ uri: currentSong.coverURL }}
+        />
       </Animated.View>
     </View>
   );
@@ -151,11 +220,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
-    bottom: 150,
+    bottom: 250,
   },
-  textStyle: {
-    color: "white",
+  artistText: {
+    paddingHorizontal: 20,
+    color: "#000",
+    fontSize: 30,
+    fontWeight: "normal",
+    top: 20,
+  },
+  titleText: {
+    paddingHorizontal: 20,
+    color: "#000",
     fontSize: 24,
     fontWeight: "bold",
+    fontStyle: "italic",
+    top: 20,
+  },
+  contentText: {
+    paddingHorizontal: 20,
+    color: "#000",
+    fontSize: 18,
+    top: 20,
   },
 });
