@@ -168,6 +168,14 @@ export default function Home() {
     ],
   };
 
+  //dynamic text color to bring contrast with its respective background
+  const textFrontColor = {
+    color:
+      parseInt(currentSong.color.replace("#", ""), 16) > 0xffffff / 1.1
+        ? "#000000"
+        : "#ffffff",
+  };
+
   return (
     <View style={styles.container}>
       <Animated.View style={lastCardStyle}>
@@ -193,11 +201,13 @@ export default function Home() {
         </Text>
       </Animated.View>
       <Animated.View {...cardsPanResponder.panHandlers} style={frontCardStyle}>
-        <Text style={styles.artistText}>
+        <Text style={[styles.artistText, textFrontColor]}>
           {allSongs[currentIndex % 3].artist}
         </Text>
-        <Text style={styles.titleText}>{allSongs[currentIndex % 3].title}</Text>
-        <Text style={styles.contentText}>
+        <Text style={[styles.titleText, textFrontColor]}>
+          {allSongs[currentIndex % 3].title}
+        </Text>
+        <Text style={[styles.contentText, textFrontColor]}>
           ({allSongs[currentIndex % 3].album})
         </Text>
         <Image
