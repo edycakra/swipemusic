@@ -5,7 +5,6 @@ import {
   Text,
   View,
   Image,
-  Dimensions,
   Animated,
   PanResponder,
 } from "react-native";
@@ -20,8 +19,7 @@ export default function Home() {
     cardsStackedAnim: new Animated.Value(0),
     currentIndex: 0,
     currentSong: {},
-    playingStatus: "nosound",
-    paused: false,
+    soundInstance: null,
   });
 
   //declaring available states
@@ -31,20 +29,20 @@ export default function Home() {
     currentIndex,
     allSongs,
     currentSong,
-    playingStatus,
-    paused,
+    soundInstance,
   } = state;
-  console.log("=======================");
-  console.log("currentSong >>>", currentSong);
 
   const playMusic = async (input) => {
     try {
+      if (soundInstance) soundInstance.pauseAsync();
       const { sound } = await Audio.Sound.createAsync(
         { uri: input.musicURL },
-        { shouldPlay: true, isLooping: false }
+        { shouldPlay: true, isLooping: false, volume: 1.0 }
       );
+      await setState({ ...state, soundInstance: sound });
       await sound.playAsync();
-      console.log("playing!");
+
+      console.log(`"${currentSong.title}" is playing!`);
     } catch (error) {
       console.log(error);
     }
@@ -85,6 +83,8 @@ export default function Home() {
         //reset to 0 when animation ends
         cardsStackedAnim.setValue(0);
 
+        //pause music
+        soundInstance.pauseAsync();
         //increment the card position after animation is ended
         setState({ ...state, currentIndex: currentIndex + 1 });
       });
