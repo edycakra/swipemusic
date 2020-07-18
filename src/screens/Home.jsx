@@ -19,7 +19,7 @@ export default function Home() {
     cardsStackedAnim: new Animated.Value(0),
     currentIndex: 0,
     currentSong: {},
-    soundInstance: null,
+    soundInstance: null, //to store the sound instance, reusable for playing/pausing music
   });
 
   //declaring available states
@@ -32,6 +32,7 @@ export default function Home() {
     soundInstance,
   } = state;
 
+  //function to handle music playing,the pauseAsync() is in function cardsPanResponder
   const playMusic = async (input) => {
     try {
       if (soundInstance) soundInstance.pauseAsync();
@@ -39,9 +40,8 @@ export default function Home() {
         { uri: input.musicURL },
         { shouldPlay: true, isLooping: false, volume: 1.0 }
       );
-      await setState({ ...state, soundInstance: sound });
-      await sound.playAsync();
-
+      await setState({ ...state, soundInstance: sound }); //set the sundInstance
+      await sound.playAsync(); //play the sound
       console.log(`"${currentSong.title}" is playing!`);
     } catch (error) {
       console.log(error);
