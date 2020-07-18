@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Constants from "expo-constants";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Animated,
-  PanResponder,
-} from "react-native";
+import { StyleSheet, View, Animated, PanResponder } from "react-native";
 import { MUSICS } from "../utils/music";
 import { Audio } from "expo-av";
+import AlbumCover from "../components/AlbumCover";
+import Card from "../components/Card";
 
 export default function Home() {
   //mutable state
@@ -40,7 +34,7 @@ export default function Home() {
         { uri: input.musicURL },
         { shouldPlay: true, isLooping: false, volume: 1.0 }
       );
-      await setState({ ...state, soundInstance: sound }); //set the sundInstance
+      await setState({ ...state, soundInstance: sound }); //set the soundInstance
       await sound.playAsync(); //play the sound
       console.log(`"${currentSong.title}" is playing!`);
     } catch (error) {
@@ -93,9 +87,6 @@ export default function Home() {
 
   //styling
   const lastCardStyle = {
-    width: 300,
-    height: 350,
-    position: "absolute",
     zIndex: 1,
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
@@ -117,9 +108,6 @@ export default function Home() {
   };
 
   const midCardStyle = {
-    width: 300,
-    height: 350,
-    position: "absolute",
     zIndex: 2,
     bottom: cardsStackedAnim.interpolate({
       inputRange: [0, 1],
@@ -141,9 +129,6 @@ export default function Home() {
   };
 
   const frontCardStyle = {
-    width: 300,
-    height: 350,
-    position: "absolute",
     zIndex: cardsStackedAnim.interpolate({
       inputRange: [0, 0.5, 1],
       outputRange: [3, 2, 0],
@@ -168,58 +153,23 @@ export default function Home() {
     ],
   };
 
-  //dynamic text color to bring contrast with its respective background
-  const textFrontColor = {
-    color:
-      parseInt(currentSong.color.replace("#", ""), 16) > 0xffffff / 1.1
-        ? "#000000"
-        : "#ffffff",
-  };
+  //general styles
+  const { container, generalCardStyle } = styles;
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={lastCardStyle}>
-        <Text style={styles.artistText}>
-          {allSongs[(currentIndex + 2) % 3].artist}
-        </Text>
-        <Text style={styles.titleText}>
-          {allSongs[(currentIndex + 2) % 3].title}
-        </Text>
-        <Text style={styles.contentText}>
-          {allSongs[(currentIndex + 2) % 3].album}
-        </Text>
+    <View style={container}>
+      <Animated.View style={[generalCardStyle, lastCardStyle]}>
+        <Card ArtistInfo={allSongs[(currentIndex + 2) % 3]} />
       </Animated.View>
-      <Animated.View style={midCardStyle}>
-        <Text style={styles.artistText}>
-          {allSongs[(currentIndex + 1) % 3].artist}
-        </Text>
-        <Text style={styles.titleText}>
-          {allSongs[(currentIndex + 1) % 3].title}
-        </Text>
-        <Text style={styles.contentText}>
-          {allSongs[(currentIndex + 1) % 3].album}
-        </Text>
+      <Animated.View style={[generalCardStyle, midCardStyle]}>
+        <Card ArtistInfo={allSongs[(currentIndex + 1) % 3]} />
       </Animated.View>
-      <Animated.View {...cardsPanResponder.panHandlers} style={frontCardStyle}>
-        <Text style={[styles.artistText, textFrontColor]}>
-          {allSongs[currentIndex % 3].artist}
-        </Text>
-        <Text style={[styles.titleText, textFrontColor]}>
-          {allSongs[currentIndex % 3].title}
-        </Text>
-        <Text style={[styles.contentText, textFrontColor]}>
-          ({allSongs[currentIndex % 3].album})
-        </Text>
-        <Image
-          style={{
-            height: 300,
-            width: 300,
-            borderRadius: 10,
-            left: 20,
-            top: 20,
-          }}
-          source={{ uri: currentSong.coverURL }}
-        />
+      <Animated.View
+        {...cardsPanResponder.panHandlers}
+        style={[generalCardStyle, frontCardStyle]}
+      >
+        <Card ArtistInfo={allSongs[currentIndex % 3]} />
+        <AlbumCover coverURL={currentSong.coverURL} />
       </Animated.View>
     </View>
   );
@@ -229,28 +179,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    marginTop: Constants.statusBarHeight,
     bottom: 250,
   },
-  artistText: {
-    paddingHorizontal: 20,
-    color: "#000",
-    fontSize: 30,
-    fontWeight: "normal",
-    top: 20,
-  },
-  titleText: {
-    paddingHorizontal: 20,
-    color: "#000",
-    fontSize: 24,
-    fontWeight: "bold",
-    fontStyle: "italic",
-    top: 20,
-  },
-  contentText: {
-    paddingHorizontal: 20,
-    color: "#000",
-    fontSize: 18,
-    top: 20,
+  generalCardStyle: {
+    width: 300,
+    height: 350,
+    position: "absolute",
   },
 });
